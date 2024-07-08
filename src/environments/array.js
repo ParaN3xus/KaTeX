@@ -878,6 +878,10 @@ defineEnvironment({
         const res: ParseNode<"array"> =
             parseArray(context.parser, payload, dCellStyle(context.envName));
         // Populate cols with the correct number of column alignment specs.
+
+        // tex2typ
+        res["from"] = "matrix";
+
         const numCols = Math.max(0, ...res.body.map((row) => row.length));
         res.cols = new Array(numCols).fill(
             {type: "align", align: colAlign}
