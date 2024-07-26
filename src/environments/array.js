@@ -2,24 +2,24 @@
 import buildCommon from "../buildCommon";
 import Style from "../Style";
 import defineEnvironment from "../defineEnvironment";
-import {parseCD} from "./cd";
+import { parseCD } from "./cd";
 import defineFunction from "../defineFunction";
 import defineMacro from "../defineMacro";
 import mathMLTree from "../mathMLTree";
 import ParseError from "../ParseError";
-import {assertNodeType, assertSymbolNodeType} from "../parseNode";
-import {checkSymbolNodeType} from "../parseNode";
-import {Token} from "../Token";
-import {calculateSize, makeEm} from "../units";
+import { assertNodeType, assertSymbolNodeType } from "../parseNode";
+import { checkSymbolNodeType } from "../parseNode";
+import { Token } from "../Token";
+import { calculateSize, makeEm } from "../units";
 import utils from "../utils";
 
 import * as html from "../buildHTML";
 import * as mml from "../buildMathML";
 
 import type Parser from "../Parser";
-import type {ParseNode, AnyParseNode} from "../parseNode";
-import type {StyleStr} from "../types";
-import type {HtmlBuilder, MathMLBuilder} from "../defineFunction";
+import type { ParseNode, AnyParseNode } from "../parseNode";
+import type { StyleStr } from "../types";
+import type { HtmlBuilder, MathMLBuilder } from "../defineFunction";
 
 // Data stored in the ParseNode associated with the environment.
 export type AlignSpec = { type: "separator", separator: string } | {
@@ -94,15 +94,15 @@ function parseArray(
         leqno,
     }: {|
         hskipBeforeAndAfter?: boolean,
-        addJot?: boolean,
-        cols?: AlignSpec[],
-        arraystretch?: number,
-        colSeparationType?: ColSeparationType,
-        autoTag?: ?boolean,
-        singleRow?: boolean,
-        emptySingleRow?: boolean,
-        maxNumCols?: number,
-        leqno?: boolean,
+    addJot?: boolean,
+    cols?: AlignSpec[],
+    arraystretch?: number,
+    colSeparationType?: ColSeparationType,
+    autoTag?: ?boolean,
+    singleRow?: boolean,
+    emptySingleRow?: boolean,
+    maxNumCols?: number,
+    leqno?: boolean,
     |},
     style: StyleStr,
 ): ParseNode<"array"> {
@@ -187,11 +187,11 @@ function parseArray(
                 if (singleRow || colSeparationType) {
                     // {equation} or {split}
                     throw new ParseError("Too many tab characters: &",
-                                        parser.nextToken);
+                        parser.nextToken);
                 } else {
                     // {array} environment
                     parser.settings.reportNonstrict("textEnv", "Too few columns " +
-                    "specified in the {array} column argument.");
+                        "specified in the {array} column argument.");
                 }
             }
             parser.consume();
@@ -232,7 +232,7 @@ function parseArray(
             beginRow();
         } else {
             throw new ParseError("Expected & or \\\\ or \\cr or \\end",
-                                 parser.nextToken);
+                parser.nextToken);
         }
     }
 
@@ -275,7 +275,7 @@ type Outrow = {
     pos: number,
 };
 
-const htmlBuilder: HtmlBuilder<"array"> = function(group, options) {
+const htmlBuilder: HtmlBuilder<"array"> = function (group, options) {
     let r;
     let c;
     const nr = group.body.length;
@@ -305,8 +305,8 @@ const htmlBuilder: HtmlBuilder<"array"> = function(group, options) {
 
     // Vertical spacing
     const baselineskip = group.colSeparationType === "CD"
-      ? calculateSize({number: 3, unit: "ex"}, options)
-      : 12 * pt; // see size10.clo
+        ? calculateSize({ number: 3, unit: "ex" }, options)
+        : 12 * pt; // see size10.clo
     // Default \jot from ltmath.dtx
     // TODO(edemaine): allow overriding \jot via \setlength (#687)
     const jot = 3 * pt;
@@ -322,7 +322,7 @@ const htmlBuilder: HtmlBuilder<"array"> = function(group, options) {
             if (i > 0) {
                 totalHeight += 0.25;
             }
-            hlines.push({pos: totalHeight, isDashed: hlinesInGap[i]});
+            hlines.push({ pos: totalHeight, isDashed: hlinesInGap[i] });
         }
     }
     setHLinePos(hLinesBeforeRow[0]);
@@ -404,15 +404,15 @@ const htmlBuilder: HtmlBuilder<"array"> = function(group, options) {
             }
             tagSpan.depth = rw.depth;
             tagSpan.height = rw.height;
-            tagSpans.push({type: "elem", elem: tagSpan, shift});
+            tagSpans.push({ type: "elem", elem: tagSpan, shift });
         }
     }
 
     for (c = 0, colDescrNum = 0;
-         // Continue while either there are more columns or more column
-         // descriptions, so trailing separators don't get lost.
-         c < nc || colDescrNum < colDescriptions.length;
-         ++c, ++colDescrNum) {
+        // Continue while either there are more columns or more column
+        // descriptions, so trailing separators don't get lost.
+        c < nc || colDescrNum < colDescriptions.length;
+        ++c, ++colDescrNum) {
 
         let colDescr = colDescriptions[colDescrNum] || {};
 
@@ -476,7 +476,7 @@ const htmlBuilder: HtmlBuilder<"array"> = function(group, options) {
             const shift = row.pos - offset;
             elem.depth = row.depth;
             elem.height = row.height;
-            col.push({type: "elem", elem: elem, shift: shift});
+            col.push({ type: "elem", elem: elem, shift: shift });
         }
 
         col = buildCommon.makeVList({
@@ -504,14 +504,14 @@ const htmlBuilder: HtmlBuilder<"array"> = function(group, options) {
         const line = buildCommon.makeLineSpan("hline", options, ruleThickness);
         const dashes = buildCommon.makeLineSpan("hdashline", options,
             ruleThickness);
-        const vListElems = [{type: "elem", elem: body, shift: 0}];
+        const vListElems = [{ type: "elem", elem: body, shift: 0 }];
         while (hlines.length > 0) {
             const hline = hlines.pop();
             const lineShift = hline.pos - offset;
             if (hline.isDashed) {
-                vListElems.push({type: "elem", elem: dashes, shift: lineShift});
+                vListElems.push({ type: "elem", elem: dashes, shift: lineShift });
             } else {
-                vListElems.push({type: "elem", elem: line, shift: lineShift});
+                vListElems.push({ type: "elem", elem: line, shift: lineShift });
             }
         }
         body = buildCommon.makeVList({
@@ -538,7 +538,7 @@ const alignMap = {
     r: "right ",
 };
 
-const mathmlBuilder: MathMLBuilder<"array"> = function(group, options) {
+const mathmlBuilder: MathMLBuilder<"array"> = function (group, options) {
     const tbl = [];
     const glue = new mathMLTree.MathNode("mtd", [], ["mtr-glue"]);
     const tag = new mathMLTree.MathNode("mtd", [], ["mml-eqn-num"]);
@@ -657,9 +657,9 @@ const mathmlBuilder: MathMLBuilder<"array"> = function(group, options) {
 
     for (let i = 1; i < hlines.length - 1; i++) {
         rowLines += (hlines[i].length === 0)
-          ? "none "
-             // MathML accepts only a single line between rows. Read one element.
-          : hlines[i][0] ? "dashed " : "solid ";
+            ? "none "
+            // MathML accepts only a single line between rows. Read one element.
+            : hlines[i][0] ? "dashed " : "solid ";
     }
     if (/[sd]/.test(rowLines)) {
         table.setAttribute("rowlines", rowLines.trim());
@@ -680,7 +680,7 @@ const mathmlBuilder: MathMLBuilder<"array"> = function(group, options) {
 };
 
 // Convenience function for align, align*, aligned, alignat, alignat*, alignedat.
-const alignedHandler = function(context, args) {
+const alignedHandler = function (context, args) {
     if (context.envName.indexOf("ed") === -1) {
         validateAmsEnvironmentContext(context);
     }
@@ -726,7 +726,7 @@ const alignedHandler = function(context, args) {
         numCols = numMaths * 2;
     }
     const isAligned = !numCols;
-    res.body.forEach(function(row) {
+    res.body.forEach(function (row) {
         for (let i = 1; i < row.length; i += 2) {
             // Modify ordgroup node within styling node
             const styling = assertNodeType(row[i], "styling");
@@ -765,6 +765,10 @@ const alignedHandler = function(context, args) {
         };
     }
     res.colSeparationType = isAligned ? "align" : "alignat";
+
+    // tex2typ
+    res.from = "align";
+
     return res;
 };
 
@@ -786,7 +790,7 @@ defineEnvironment({
         const symNode = checkSymbolNodeType(args[0]);
         const colalign: AnyParseNode[] =
             symNode ? [args[0]] : assertNodeType(args[0], "ordgroup").body;
-        const cols = colalign.map(function(nde) {
+        const cols = colalign.map(function (nde) {
             const node = assertSymbolNodeType(nde);
             const ca = node.text;
             if ("lcr".indexOf(ca) !== -1) {
@@ -854,7 +858,7 @@ defineEnvironment({
         let colAlign = "c";
         const payload = {
             hskipBeforeAndAfter: false,
-            cols: [{type: "align", align: colAlign}],
+            cols: [{ type: "align", align: colAlign }],
         };
         if (context.envName.charAt(context.envName.length - 1) === "*") {
             // It's one of the mathtools starred functions.
@@ -872,7 +876,7 @@ defineEnvironment({
                 parser.consumeSpaces();
                 parser.expect("]");
                 parser.consume();
-                payload.cols = [{type: "align", align: colAlign}];
+                payload.cols = [{ type: "align", align: colAlign }];
             }
         }
         const res: ParseNode<"array"> =
@@ -884,7 +888,7 @@ defineEnvironment({
 
         const numCols = Math.max(0, ...res.body.map((row) => row.length));
         res.cols = new Array(numCols).fill(
-            {type: "align", align: colAlign}
+            { type: "align", align: colAlign }
         );
         return delimiters ? {
             type: "leftright",
@@ -906,7 +910,7 @@ defineEnvironment({
         numArgs: 0,
     },
     handler(context) {
-        const payload = {arraystretch: 0.5};
+        const payload = { arraystretch: 0.5 };
         const res = parseArray(context.parser, payload, "script");
         res.colSeparationType = "small";
         return res;
@@ -926,7 +930,7 @@ defineEnvironment({
         const symNode = checkSymbolNodeType(args[0]);
         const colalign: AnyParseNode[] =
             symNode ? [args[0]] : assertNodeType(args[0], "ordgroup").body;
-        const cols = colalign.map(function(nde) {
+        const cols = colalign.map(function (nde) {
             const node = assertSymbolNodeType(nde);
             const ca = node.text;
             // {subarray} only recognizes "l" & "c"
@@ -947,7 +951,7 @@ defineEnvironment({
             arraystretch: 0.5,
         };
         res = parseArray(context.parser, res, "script");
-        if (res.body.length > 0 &&  res.body[0].length > 1) {
+        if (res.body.length > 0 && res.body[0].length > 1) {
             throw new ParseError("{subarray} can contain only one column");
         }
         return res;
